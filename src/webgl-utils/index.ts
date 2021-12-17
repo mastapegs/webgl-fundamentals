@@ -13,12 +13,18 @@ export function createShader(
 
 export function createProgram(
   gl: WebGLRenderingContext,
-  vertexShader: WebGLShader,
-  fragmentShader: WebGLShader
+  vertexShaderSource: string,
+  fragmentShaderSource: string
 ) {
   var program = gl.createProgram()!;
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
+  gl.attachShader(
+    program,
+    createShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
+  );
+  gl.attachShader(
+    program,
+    createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
+  );
   gl.linkProgram(program);
   return program;
 }
