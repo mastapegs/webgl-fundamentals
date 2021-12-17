@@ -12,8 +12,9 @@ export function startApp(canvas: HTMLCanvasElement) {
     `
     attribute vec2 a_position;
     attribute vec4 a_color;
-    
+
     uniform vec2 u_resolution;
+    
     varying vec4 v_color;
     
     void main() {
@@ -41,15 +42,24 @@ export function startApp(canvas: HTMLCanvasElement) {
     `
   );
 
-  // Position Attribute Initialization
+  // Lookup attribute locations
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
+
+  const resolutionUniformLocation = gl.getUniformLocation(
+    program,
+    "u_resolution"
+  );
+
+  // Create attribute buffers and set vertex data
+
+  // Position
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   const positions = [...[10, 20], ...[500, 20], ...[10, 200], ...[500, 200]];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-  // Color Attribute Initialization
-  const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
+  // Color
   const colorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   const colors = [
@@ -60,12 +70,6 @@ export function startApp(canvas: HTMLCanvasElement) {
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
-  // Resolution Uniform Initialization
-  const resolutionUniformLocation = gl.getUniformLocation(
-    program,
-    "u_resolution"
-  );
-
   // Above this point is initialization
 
   // Below this point is rendering
@@ -75,11 +79,33 @@ export function startApp(canvas: HTMLCanvasElement) {
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   clear(gl, [0, 0, 0, 0]);
 
-  gl.useProgram(program);
+  const programData = {
+    program,
+    attributes: [
+      {
+        location: positionAttributeLocation,
+        buffer: positionBuffer,
+      },
+      {
+        location: colorAttributeLocation,
+        buffer: colorBuffer,
+      },
+    ],
+    uniforms: [
+      {
+        location: resolutionUniformLocation,
+      },
+    ],
+  };
+  drawRectangle(gl, programData);
+}
+
+function drawRectangle(gl: WebGLRenderingContext, programData: any) {
+  gl.useProgram(programData.program);
 
   // Position Attribute Read From Buffer
-  gl.enableVertexAttribArray(positionAttributeLocation);
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.enableVertexAttribArray(programData.attributes[0].location);
+  gl.bindBuffer(gl.ARRAY_BUFFER, programData.attributes[0].buffer);
   {
     const size = 2;
     const type = gl.FLOAT;
@@ -87,7 +113,7 @@ export function startApp(canvas: HTMLCanvasElement) {
     const stride = 0;
     const offset = 0;
     gl.vertexAttribPointer(
-      positionAttributeLocation,
+      programData.attributes[0].location,
       size,
       type,
       normalize,
@@ -97,8 +123,8 @@ export function startApp(canvas: HTMLCanvasElement) {
   }
 
   // Color Attribute Read From Buffer
-  gl.enableVertexAttribArray(colorAttributeLocation);
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  gl.enableVertexAttribArray(programData.attributes[1].location);
+  gl.bindBuffer(gl.ARRAY_BUFFER, programData.attributes[1].buffer);
   {
     const size = 4;
     const type = gl.FLOAT;
@@ -106,7 +132,7 @@ export function startApp(canvas: HTMLCanvasElement) {
     const stride = 0;
     const offset = 0;
     gl.vertexAttribPointer(
-      colorAttributeLocation,
+      programData.attributes[1].location,
       size,
       type,
       normalize,
@@ -116,7 +142,11 @@ export function startApp(canvas: HTMLCanvasElement) {
   }
 
   // Resolution Uniform update
-  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+  gl.uniform2f(
+    programData.uniforms[0].location,
+    gl.canvas.width,
+    gl.canvas.height
+  );
 
   // Draw
   {
