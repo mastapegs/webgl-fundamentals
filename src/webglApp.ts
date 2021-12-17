@@ -34,8 +34,11 @@ export function startApp(canvas: HTMLCanvasElement) {
     gl.FRAGMENT_SHADER,
     `
     precision mediump float;
+
+    uniform vec4 u_color;
+    
     void main() {
-      gl_FragColor = vec4(1.0, 0.0, 0.5, 1.0);
+      gl_FragColor = u_color;
     }
     `
   );
@@ -47,11 +50,9 @@ export function startApp(canvas: HTMLCanvasElement) {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   const positions = [
     ...[10, 20],
-    ...[80, 20],
-    ...[10, 30],
-    ...[10, 30],
-    ...[80, 20],
-    ...[80, 30],
+    ...[500, 20],
+    ...[10, 200],
+    ...[500, 200],
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
@@ -59,6 +60,7 @@ export function startApp(canvas: HTMLCanvasElement) {
     program,
     "u_resolution"
   );
+  const colorUniformLocation = gl.getUniformLocation(program, "u_color");
 
   // Above this point is initialization
 
@@ -90,11 +92,12 @@ export function startApp(canvas: HTMLCanvasElement) {
   }
 
   gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+  gl.uniform4f(colorUniformLocation, 0.2, 0.7, 0.7, 1.0);
 
   {
-    const primitiveType = gl.TRIANGLES;
+    const primitiveType = gl.TRIANGLE_STRIP;
     const offset = 0;
-    const count = 6;
+    const count = 4;
     gl.drawArrays(primitiveType, offset, count);
   }
 }
