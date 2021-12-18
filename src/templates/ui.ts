@@ -20,25 +20,29 @@ export function renderUI(
     drawScene(canvas, gl, programData, Number(deltaX), deltaY);
   };
   return html`
-    <label for="x">X</label>
-    <input
-      id="x"
-      type="range"
-      min="0"
-      max="1"
-      step="0.005"
-      value=${String(deltaX)}
-      @input=${handleXInput}
-    />
-    <label for="y">Y</label>
-    <input
-      id="y"
-      type="range"
-      min="0"
-      max="1"
-      step="0.005"
-      value=${String(deltaY)}
-      @input=${handleYInput}
-    />
+    <div>
+      <label for="x">X</label>
+      <input
+        id="x"
+        type="range"
+        min="0"
+        max="1"
+        step="0.005"
+        value=${String(deltaX)}
+        @input=${handleXInput}
+      />
+    </div>
+    <div>
+      <label for="y">Y</label>
+      <input
+        id="y"
+        type="range"
+        min="0"
+        max="1"
+        step="0.005"
+        value=${String(deltaY)}
+        @input=${handleYInput}
+      />
+    </div>
   `;
 }

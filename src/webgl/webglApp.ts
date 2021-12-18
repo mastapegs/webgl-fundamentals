@@ -35,10 +35,10 @@ export function startApp(canvas: HTMLCanvasElement) {
   )!;
 
   // Create attribute buffers and set vertex data
-  const rectX = 100;
-  const rectY = 100;
-  const width = 200;
-  const height = 100;
+  const rectX = 50;
+  const rectY = 30;
+  const width = 100;
+  const height = 60;
 
   const positionBuffer = prepareBuffer(gl, [
     ...[rectX, rectY],
