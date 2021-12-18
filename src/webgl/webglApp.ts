@@ -81,23 +81,71 @@ export function startApp(canvas: HTMLCanvasElement) {
   // Below this point is rendering
 
   const ui = document.querySelector<HTMLDivElement>("#ui")!;
-  render(html`<p>Test</p>`, ui);
-  drawScene(canvas, gl, programData);
+  render(renderUI(canvas, gl, programData, 0, 0), ui);
+  drawScene(canvas, gl, programData, 0, 0);
+}
+
+function renderUI(
+  canvas: HTMLCanvasElement,
+  gl: WebGLRenderingContext,
+  programData: ProgramData,
+  deltaX: number,
+  deltaY: number
+) {
+  const handleXInput = (event: any) => {
+    const deltaX = event.target.value;
+    const deltaY = document.querySelector<HTMLInputElement>("#y")!.value;
+    drawScene(canvas, gl, programData, deltaX, Number(deltaY));
+  };
+  const handleYInput = (event: any) => {
+    const deltaX = document.querySelector<HTMLInputElement>("#x")!.value;
+    const deltaY = event.target.value;
+    drawScene(canvas, gl, programData, Number(deltaX), deltaY);
+  };
+  return html`
+    <label for="x">X</label>
+    <input
+      id="x"
+      type="range"
+      min="0"
+      max="1"
+      step="0.005"
+      value=${String(deltaX)}
+      @input=${handleXInput}
+    />
+    <label for="y">Y</label>
+    <input
+      id="y"
+      type="range"
+      min="0"
+      max="1"
+      step="0.005"
+      value=${String(deltaY)}
+      @input=${handleYInput}
+    />
+  `;
 }
 
 function drawScene(
   canvas: HTMLCanvasElement,
   gl: WebGLRenderingContext,
-  programData: ProgramData
+  programData: ProgramData,
+  deltaX: number,
+  deltaY: number
 ) {
   resizeCanvasToDisplaySize(canvas);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   clear(gl, [0, 0, 0, 0]);
-  drawRectangle(gl, programData);
+  drawRectangle(gl, programData, deltaX, deltaY);
 }
 
-function drawRectangle(gl: WebGLRenderingContext, programData: ProgramData) {
+function drawRectangle(
+  gl: WebGLRenderingContext,
+  programData: ProgramData,
+  deltaX: number,
+  deltaY: number
+) {
   gl.useProgram(programData.program);
 
   prepareProgramAttributes(gl, programData.attributes);
@@ -110,7 +158,7 @@ function drawRectangle(gl: WebGLRenderingContext, programData: ProgramData) {
   );
 
   // Translation Uniform
-  gl.uniform2f(programData.uniforms[1].location, 0, 0);
+  gl.uniform2f(programData.uniforms[1].location, deltaX, deltaY);
 
   // Draw
   {
