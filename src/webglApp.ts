@@ -2,7 +2,8 @@ import {
   createProgram,
   resizeCanvasToDisplaySize,
   clear,
-  prepareAttributes,
+  prepareBuffer,
+  prepareProgramAttributes,
   ProgramData,
 } from "./webgl-utils";
 
@@ -43,33 +44,27 @@ export function startApp(canvas: HTMLCanvasElement) {
     `
   );
 
-  // Lookup attribute locations
+  // Lookup attribute and uniform locations
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
-
   const resolutionUniformLocation = gl.getUniformLocation(
     program,
     "u_resolution"
   )!;
 
   // Create attribute buffers and set vertex data
-
-  // Position
-  const positionBuffer = gl.createBuffer()!;
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  const positions = [...[10, 20], ...[500, 20], ...[10, 200], ...[500, 200]];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-  // Color
-  const colorBuffer = gl.createBuffer()!;
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  const colors = [
+  const positionBuffer = prepareBuffer(gl, [
+    ...[10, 20],
+    ...[500, 20],
+    ...[10, 200],
+    ...[500, 200],
+  ]);
+  const colorBuffer = prepareBuffer(gl, [
     ...[1, 0, 0, 1], // Red
     ...[1, 1, 0, 1], // Yellow
     ...[0, 1, 0, 1], // Green
     ...[0, 1, 1, 1], // Blue
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+  ]);
 
   // Above this point is initialization
 
@@ -100,14 +95,14 @@ export function startApp(canvas: HTMLCanvasElement) {
       },
     ],
   };
-  
+
   drawRectangle(gl, programData);
 }
 
 function drawRectangle(gl: WebGLRenderingContext, programData: ProgramData) {
   gl.useProgram(programData.program);
 
-  prepareAttributes(gl, programData.attributes);
+  prepareProgramAttributes(gl, programData.attributes);
 
   // Resolution Uniform update
   gl.uniform2f(

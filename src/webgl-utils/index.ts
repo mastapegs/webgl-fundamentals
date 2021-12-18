@@ -68,7 +68,14 @@ export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   return needResize;
 }
 
-export function prepareAttributes(
+export function prepareBuffer(gl: WebGLRenderingContext, vertexData: number[]) {
+  const buffer = gl.createBuffer()!;
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+  return buffer;
+}
+
+export function prepareProgramAttributes(
   gl: WebGLRenderingContext,
   attributes: AttributeData[]
 ) {
