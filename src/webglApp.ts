@@ -1,4 +1,3 @@
-import { ProgramData } from "./webgl-utils/index";
 import {
   createProgram,
   resizeCanvasToDisplaySize,
