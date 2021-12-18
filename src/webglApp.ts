@@ -1,3 +1,4 @@
+import { ProgramData } from "./webgl-utils/index";
 import {
   createProgram,
   resizeCanvasToDisplaySize,
@@ -66,15 +67,6 @@ export function startApp(canvas: HTMLCanvasElement) {
     ...[0, 1, 1, 1], // Blue
   ]);
 
-  // Above this point is initialization
-
-  // Below this point is rendering
-
-  resizeCanvasToDisplaySize(canvas);
-
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  clear(gl, [0, 0, 0, 0]);
-
   const programData: ProgramData = {
     program,
     attributes: [
@@ -96,6 +88,22 @@ export function startApp(canvas: HTMLCanvasElement) {
     ],
   };
 
+  // Above this point is initialization
+
+  // Below this point is rendering
+
+  drawScene(canvas, gl, programData);
+}
+
+function drawScene(
+  canvas: HTMLCanvasElement,
+  gl: WebGLRenderingContext,
+  programData: ProgramData
+) {
+  resizeCanvasToDisplaySize(canvas);
+
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  clear(gl, [0, 0, 0, 0]);
   drawRectangle(gl, programData);
 }
 
