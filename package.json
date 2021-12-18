@@ -12,8 +12,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build:prod": "tsc && vite build --base=/webgl-fundamentals/"
+    "build": "tsc && vite build --base=/webgl-fundamentals/"
   },
   "dependencies": {
     "lit": "^2.0.2"
