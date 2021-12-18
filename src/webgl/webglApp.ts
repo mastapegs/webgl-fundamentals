@@ -1,3 +1,4 @@
+import { html, render } from "lit";
 import {
   createProgram,
   resizeCanvasToDisplaySize,
@@ -15,19 +16,34 @@ export function startApp(canvas: HTMLCanvasElement) {
   const rectangleProgram = createProgram(gl, vertexSource, fragmentSource);
 
   // Lookup attribute and uniform locations
-  const positionAttributeLocation = gl.getAttribLocation(rectangleProgram, "a_position");
-  const colorAttributeLocation = gl.getAttribLocation(rectangleProgram, "a_color");
+  const positionAttributeLocation = gl.getAttribLocation(
+    rectangleProgram,
+    "a_position"
+  );
+  const colorAttributeLocation = gl.getAttribLocation(
+    rectangleProgram,
+    "a_color"
+  );
   const resolutionUniformLocation = gl.getUniformLocation(
     rectangleProgram,
     "u_resolution"
   )!;
+  const translationUniformLocation = gl.getUniformLocation(
+    rectangleProgram,
+    "u_translation"
+  )!;
 
   // Create attribute buffers and set vertex data
+  const rectX = 10;
+  const rectY = 10;
+  const width = 500;
+  const height = 200;
+
   const positionBuffer = prepareBuffer(gl, [
-    ...[0, 0],
-    ...[canvas.clientWidth, 0],
-    ...[0, canvas.clientHeight],
-    ...[canvas.clientWidth, canvas.clientHeight],
+    ...[rectX, rectY],
+    ...[rectX + width, rectY],
+    ...[rectX, rectY + height],
+    ...[rectX + width, rectY + height],
   ]);
   const colorBuffer = prepareBuffer(gl, [
     ...[1, 0, 0, 1], // Red
@@ -54,6 +70,9 @@ export function startApp(canvas: HTMLCanvasElement) {
       {
         location: resolutionUniformLocation,
       },
+      {
+        location: translationUniformLocation,
+      },
     ],
   };
 
@@ -61,6 +80,8 @@ export function startApp(canvas: HTMLCanvasElement) {
 
   // Below this point is rendering
 
+  const ui = document.querySelector<HTMLDivElement>("#ui")!;
+  render(html`<p>Test</p>`, ui);
   drawScene(canvas, gl, programData);
 }
 
@@ -81,12 +102,15 @@ function drawRectangle(gl: WebGLRenderingContext, programData: ProgramData) {
 
   prepareProgramAttributes(gl, programData.attributes);
 
-  // Resolution Uniform update
+  // Resolution Uniform
   gl.uniform2f(
     programData.uniforms[0].location,
     gl.canvas.width,
     gl.canvas.height
   );
+
+  // Translation Uniform
+  gl.uniform2f(programData.uniforms[1].location, 0, 0);
 
   // Draw
   {
