@@ -2,7 +2,7 @@
   "name": "webgl",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build --base=/webgl-fundamentals/"
+    "build": "tsc && vite build"
   },
   "dependencies": {
     "lit": "^2.0.2"
