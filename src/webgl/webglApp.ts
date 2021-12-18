@@ -15,9 +15,6 @@ export function startApp(canvas: HTMLCanvasElement) {
   const gl = canvas.getContext("webgl")!;
   const rectangleProgram = createProgram(gl, vertexSource, fragmentSource);
 
-  resizeCanvasToDisplaySize(canvas);
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
   // Lookup attribute and uniform locations
   const positionAttributeLocation = gl.getAttribLocation(
     rectangleProgram,
