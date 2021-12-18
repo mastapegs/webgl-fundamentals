@@ -1,4 +1,4 @@
-import { html, render } from "lit";
+import { render } from "lit";
 import {
   createProgram,
   resizeCanvasToDisplaySize,
@@ -7,6 +7,7 @@ import {
   prepareProgramAttributes,
   ProgramData,
 } from "./utils";
+import { renderUI } from "../templates/ui";
 
 import vertexSource from "./shaders/vertex.glsl?raw";
 import fragmentSource from "./shaders/fragment.glsl?raw";
@@ -81,49 +82,8 @@ export function startApp(canvas: HTMLCanvasElement) {
   // Below this point is rendering
 
   const ui = document.querySelector<HTMLDivElement>("#ui")!;
-  render(renderUI(canvas, gl, programData, 0, 0), ui);
+  render(renderUI(canvas, gl, programData, 0, 0, drawScene), ui);
   drawScene(canvas, gl, programData, 0, 0);
-}
-
-function renderUI(
-  canvas: HTMLCanvasElement,
-  gl: WebGLRenderingContext,
-  programData: ProgramData,
-  deltaX: number,
-  deltaY: number
-) {
-  const handleXInput = (event: any) => {
-    const deltaX = event.target.value;
-    const deltaY = document.querySelector<HTMLInputElement>("#y")!.value;
-    drawScene(canvas, gl, programData, deltaX, Number(deltaY));
-  };
-  const handleYInput = (event: any) => {
-    const deltaX = document.querySelector<HTMLInputElement>("#x")!.value;
-    const deltaY = event.target.value;
-    drawScene(canvas, gl, programData, Number(deltaX), deltaY);
-  };
-  return html`
-    <label for="x">X</label>
-    <input
-      id="x"
-      type="range"
-      min="0"
-      max="1"
-      step="0.005"
-      value=${String(deltaX)}
-      @input=${handleXInput}
-    />
-    <label for="y">Y</label>
-    <input
-      id="y"
-      type="range"
-      min="0"
-      max="1"
-      step="0.005"
-      value=${String(deltaY)}
-      @input=${handleYInput}
-    />
-  `;
 }
 
 function drawScene(
