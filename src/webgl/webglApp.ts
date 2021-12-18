@@ -12,13 +12,13 @@ import fragmentSource from "./shaders/fragment.glsl?raw";
 
 export function startApp(canvas: HTMLCanvasElement) {
   const gl = canvas.getContext("webgl")!;
-  const program = createProgram(gl, vertexSource, fragmentSource);
+  const rectangleProgram = createProgram(gl, vertexSource, fragmentSource);
 
   // Lookup attribute and uniform locations
-  const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-  const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
+  const positionAttributeLocation = gl.getAttribLocation(rectangleProgram, "a_position");
+  const colorAttributeLocation = gl.getAttribLocation(rectangleProgram, "a_color");
   const resolutionUniformLocation = gl.getUniformLocation(
-    program,
+    rectangleProgram,
     "u_resolution"
   )!;
 
@@ -37,7 +37,7 @@ export function startApp(canvas: HTMLCanvasElement) {
   ]);
 
   const programData: ProgramData = {
-    program: program,
+    program: rectangleProgram,
     attributes: [
       {
         location: positionAttributeLocation,
