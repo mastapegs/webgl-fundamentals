@@ -7,18 +7,18 @@ import {
   ProgramData,
 } from "./utils";
 
-import rectangleVertSource from "./shaders/rectangle.vert?raw";
-import rectangleFragSource from "./shaders/rectangle.frag?raw";
+import vertexSource from "./shaders/vertex.glsl?raw";
+import fragmentSource from "./shaders/fragment.glsl?raw";
 
 export function startApp(canvas: HTMLCanvasElement) {
   const gl = canvas.getContext("webgl")!;
-  const rectangleProgram = createProgram(gl, rectangleVertSource, rectangleFragSource);
+  const program = createProgram(gl, vertexSource, fragmentSource);
 
   // Lookup attribute and uniform locations
-  const positionAttributeLocation = gl.getAttribLocation(rectangleProgram, "a_position");
-  const colorAttributeLocation = gl.getAttribLocation(rectangleProgram, "a_color");
+  const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
   const resolutionUniformLocation = gl.getUniformLocation(
-    rectangleProgram,
+    program,
     "u_resolution"
   )!;
 
@@ -37,7 +37,7 @@ export function startApp(canvas: HTMLCanvasElement) {
   ]);
 
   const programData: ProgramData = {
-    program: rectangleProgram,
+    program: program,
     attributes: [
       {
         location: positionAttributeLocation,
