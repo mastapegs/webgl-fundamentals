@@ -24,10 +24,10 @@ export function startApp(canvas: HTMLCanvasElement) {
 
   // Create attribute buffers and set vertex data
   const positionBuffer = prepareBuffer(gl, [
-    ...[10, 20],
-    ...[500, 20],
-    ...[10, 200],
-    ...[500, 200],
+    ...[0, 0],
+    ...[canvas.clientWidth, 0],
+    ...[0, canvas.clientHeight],
+    ...[canvas.clientWidth, canvas.clientHeight],
   ]);
   const colorBuffer = prepareBuffer(gl, [
     ...[1, 0, 0, 1], // Red
