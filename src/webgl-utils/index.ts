@@ -1,5 +1,21 @@
 export type Color = [number, number, number, number];
 
+export interface ProgramData {
+  program: WebGLProgram;
+  attributes: AttributeData[];
+  uniforms: UniformData[];
+}
+
+export interface AttributeData {
+  location: number;
+  buffer: WebGLBuffer;
+  size: number;
+}
+
+export interface UniformData {
+  location: WebGLUniformLocation;
+}
+
 export function createShader(
   gl: WebGLRenderingContext,
   type: number,
@@ -50,4 +66,20 @@ export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   }
 
   return needResize;
+}
+
+export function prepareAttributes(
+  gl: WebGLRenderingContext,
+  attributes: AttributeData[]
+) {
+  attributes.forEach(({ location, buffer, size }) => {
+    gl.enableVertexAttribArray(location);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.vertexAttribPointer(location, size, type, normalize, stride, offset);
+  });
 }

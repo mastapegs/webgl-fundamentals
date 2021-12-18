@@ -1,8 +1,9 @@
 import {
-  createShader,
   createProgram,
   resizeCanvasToDisplaySize,
   clear,
+  prepareAttributes,
+  ProgramData,
 } from "./webgl-utils";
 
 export function startApp(canvas: HTMLCanvasElement) {
@@ -49,18 +50,18 @@ export function startApp(canvas: HTMLCanvasElement) {
   const resolutionUniformLocation = gl.getUniformLocation(
     program,
     "u_resolution"
-  );
+  )!;
 
   // Create attribute buffers and set vertex data
 
   // Position
-  const positionBuffer = gl.createBuffer();
+  const positionBuffer = gl.createBuffer()!;
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   const positions = [...[10, 20], ...[500, 20], ...[10, 200], ...[500, 200]];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
   // Color
-  const colorBuffer = gl.createBuffer();
+  const colorBuffer = gl.createBuffer()!;
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   const colors = [
     ...[1, 0, 0, 1], // Red
@@ -79,16 +80,18 @@ export function startApp(canvas: HTMLCanvasElement) {
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   clear(gl, [0, 0, 0, 0]);
 
-  const programData = {
+  const programData: ProgramData = {
     program,
     attributes: [
       {
         location: positionAttributeLocation,
         buffer: positionBuffer,
+        size: 2,
       },
       {
         location: colorAttributeLocation,
         buffer: colorBuffer,
+        size: 4,
       },
     ],
     uniforms: [
@@ -97,49 +100,14 @@ export function startApp(canvas: HTMLCanvasElement) {
       },
     ],
   };
+  
   drawRectangle(gl, programData);
 }
 
-function drawRectangle(gl: WebGLRenderingContext, programData: any) {
+function drawRectangle(gl: WebGLRenderingContext, programData: ProgramData) {
   gl.useProgram(programData.program);
 
-  // Position Attribute Read From Buffer
-  gl.enableVertexAttribArray(programData.attributes[0].location);
-  gl.bindBuffer(gl.ARRAY_BUFFER, programData.attributes[0].buffer);
-  {
-    const size = 2;
-    const type = gl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.vertexAttribPointer(
-      programData.attributes[0].location,
-      size,
-      type,
-      normalize,
-      stride,
-      offset
-    );
-  }
-
-  // Color Attribute Read From Buffer
-  gl.enableVertexAttribArray(programData.attributes[1].location);
-  gl.bindBuffer(gl.ARRAY_BUFFER, programData.attributes[1].buffer);
-  {
-    const size = 4;
-    const type = gl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.vertexAttribPointer(
-      programData.attributes[1].location,
-      size,
-      type,
-      normalize,
-      stride,
-      offset
-    );
-  }
+  prepareAttributes(gl, programData.attributes);
 
   // Resolution Uniform update
   gl.uniform2f(
