@@ -48,14 +48,22 @@ export class WebGLApp extends LitElement {
       this.gl,
       `
       attribute vec2 a_position;
+      uniform vec2 u_scale;
       uniform vec2 u_rotation;
       uniform vec2 u_translation;
       varying vec2 v_position;
 
       void main() {
+        vec2 scaledPosition = a_position * u_scale;
+        
+        // vec2 rotatedPosition = vec2(
+        //   a_position.x * u_rotation.y + a_position.y * u_rotation.x,
+        //   a_position.y * u_rotation.y - a_position.x * u_rotation.x
+        // );
+
         vec2 rotatedPosition = vec2(
-          a_position.x * u_rotation.y + a_position.y * u_rotation.x,
-          a_position.y * u_rotation.y - a_position.x * u_rotation.x
+          scaledPosition.x * u_rotation.y + scaledPosition.y * u_rotation.x,
+          scaledPosition.y * u_rotation.y - scaledPosition.x * u_rotation.x
         );
 
         gl_Position = vec4(rotatedPosition + u_translation, 0, 1);
@@ -80,15 +88,17 @@ export class WebGLApp extends LitElement {
       program,
       "a_position"
     );
-
-    const resolutionUniformLocation = this.gl.getUniformLocation(
+    const scaleUniformLocation = this.gl.getUniformLocation(
       program,
-      "u_translation"
+      "u_scale"
     )!;
-
     const rotationUniformLocation = this.gl.getUniformLocation(
       program,
       "u_rotation"
+    )!;
+    const translationUniformLocation = this.gl.getUniformLocation(
+      program,
+      "u_translation"
     )!;
 
     const trianglePointLength = 0.5;
@@ -108,8 +118,9 @@ export class WebGLApp extends LitElement {
         },
       ],
       uniforms: {
-        translation: resolutionUniformLocation,
+        scale: scaleUniformLocation,
         rotation: rotationUniformLocation,
+        translation: translationUniformLocation,
       },
     };
   }
@@ -142,14 +153,19 @@ export class WebGLApp extends LitElement {
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
       this.gl.uniform2f(
-        this.programData.uniforms.translation,
-        this.deltaX,
-        this.deltaY
+        this.programData.uniforms.scale,
+        this.scale,
+        this.scale
       );
       this.gl.uniform2f(
         this.programData.uniforms.rotation,
         Math.cos(this.theta),
         Math.sin(this.theta)
+      );
+      this.gl.uniform2f(
+        this.programData.uniforms.translation,
+        this.deltaX,
+        this.deltaY
       );
 
       const primitiveType = this.gl.TRIANGLES;
