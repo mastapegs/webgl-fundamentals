@@ -46,15 +46,21 @@ export class WebGLApp extends LitElement {
       `
       attribute vec2 a_position;
 
+      varying vec2 v_position;
+
       void main() {
         gl_Position = vec4(a_position, 0, 1);
+        v_position = a_position;
       }
       `,
       `
       precision mediump float;
+      varying vec2 v_position;
 
       void main() {
-        gl_FragColor = vec4(0, 0, 0, 1);
+        // convert from clipspace -1,1 -> colorspace 0,1
+        vec2 color_space = (v_position + vec2(1, 1)) / vec2(2, 2);
+        gl_FragColor = vec4(color_space, 0.7, 1);
       }
       `
     );
