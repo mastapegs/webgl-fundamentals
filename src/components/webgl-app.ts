@@ -38,6 +38,8 @@ export class WebGLApp extends LitElement {
   @state() programData!: ProgramData;
   @state() deltaX = 0;
   @state() deltaY = 0;
+  @state() thetaX = 0;
+  @state() thetaY = 0;
 
   initializeWebGL() {
     this.gl = this.canvas.getContext("webgl")!;
@@ -112,6 +114,12 @@ export class WebGLApp extends LitElement {
   handleY(event: Event) {
     this.deltaY = Number((event.target as HTMLInputElement).value);
   }
+  handleThetaX(event: Event) {
+    this.thetaX = Number((event.target as HTMLInputElement).value);
+  }
+  handleThetaY(event: Event) {
+    this.thetaY = Number((event.target as HTMLInputElement).value);
+  }
 
   drawScene() {
     if (this.programData) {
@@ -135,13 +143,16 @@ export class WebGLApp extends LitElement {
     }
   }
 
+  roundTo100(number: number) {
+    return Math.round(number * 100) / 100;
+  }
+
   render() {
     this.drawScene();
     return html`
       <canvas></canvas>
       <form id="ui">
         <div>
-          <label for="x">X</label>
           <input
             id="x"
             type="range"
@@ -151,9 +162,9 @@ export class WebGLApp extends LitElement {
             value=${this.deltaX}
             @input=${this.handleX}
           />
+          <label for="x">X</label>
         </div>
         <div>
-          <label for="y">Y</label>
           <input
             id="y"
             type="range"
@@ -163,9 +174,36 @@ export class WebGLApp extends LitElement {
             value=${this.deltaY}
             @input=${this.handleY}
           />
+          <label for="y">Y</label>
+        </div>
+        <div>
+          <input
+            id="thetaX"
+            type="range"
+            min=${Math.PI * -2}
+            max=${Math.PI * 2}
+            step="0.01"
+            value=${this.thetaX}
+            @input=${this.handleThetaX}
+          />
+          <label for="thetaY">thetaY</label>
+        </div>
+        <div>
+          <input
+            id="thetaY"
+            type="range"
+            min=${Math.PI * -2}
+            max=${Math.PI * 2}
+            step="0.01"
+            value=${this.thetaY}
+            @input=${this.handleThetaY}
+          />
+          <label for="thetaX">thetaY</label>
         </div>
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
+        <div>Theta X: <span>${this.roundTo100(this.thetaX)}</span></div>
+        <div>Theta Y: <span>${this.roundTo100(this.thetaY)}</span></div>
       </form>
     `;
   }
