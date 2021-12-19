@@ -112,7 +112,7 @@ export class WebGLApp extends LitElement {
     this.deltaY = Number((event.target as HTMLInputElement).value);
   }
 
-  render() {
+  drawScene() {
     if (this.programData) {
       resizeCanvasToDisplaySize(this.canvas);
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
@@ -132,6 +132,10 @@ export class WebGLApp extends LitElement {
       const count = 3;
       this.gl.drawArrays(primitiveType, offset, count);
     }
+  }
+
+  render() {
+    this.drawScene();
     return html`
       <canvas></canvas>
       <div id="ui">
@@ -159,12 +163,8 @@ export class WebGLApp extends LitElement {
             @input=${this.handleY}
           />
         </div>
-        <div>
-          X: <span>${this.deltaX}</span>
-        </div>
-        <div>
-          Y: <span>${this.deltaY}</span>
-        </div>
+        <div>X: <span>${this.deltaX}</span></div>
+        <div>Y: <span>${this.deltaY}</span></div>
       </div>
     `;
   }
