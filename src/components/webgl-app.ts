@@ -22,6 +22,7 @@ export class WebGLApp extends LitElement {
       display: block;
     }
     #ui {
+      background-color: hsla(0, 0%, 100%, 0.75);
       padding: 8px;
       position: absolute;
       top: 20px;
@@ -45,11 +46,12 @@ export class WebGLApp extends LitElement {
       this.gl,
       `
       attribute vec2 a_position;
+      uniform vec2 u_translation;
 
       varying vec2 v_position;
 
       void main() {
-        gl_Position = vec4(a_position, 0, 1);
+        gl_Position = vec4(a_position + u_translation, 0, 1);
         v_position = a_position;
       }
       `,
@@ -60,6 +62,7 @@ export class WebGLApp extends LitElement {
       void main() {
         // convert from clipspace -1,1 -> colorspace 0,1
         vec2 color_space = (vec2(10, 10) * v_position + vec2(1, 1)) / vec2(2, 2);
+
         gl_FragColor = vec4(color_space, 0.7, 1);
       }
       `
@@ -69,6 +72,11 @@ export class WebGLApp extends LitElement {
       program,
       "a_position"
     );
+
+    const resolutionUniformLocation = this.gl.getUniformLocation(
+      program,
+      "u_translation"
+    )!;
 
     const trianglePointLength = 0.25;
     const positionBuffer = prepareBuffer(this.gl, [
@@ -86,7 +94,9 @@ export class WebGLApp extends LitElement {
           size: 2,
         },
       ],
-      uniforms: [],
+      uniforms: {
+        translate: resolutionUniformLocation,
+      },
     };
   }
 
@@ -98,6 +108,9 @@ export class WebGLApp extends LitElement {
   handleX(event: Event) {
     this.deltaX = Number((event.target as HTMLInputElement).value);
   }
+  handleY(event: Event) {
+    this.deltaY = Number((event.target as HTMLInputElement).value);
+  }
 
   render() {
     if (this.programData) {
@@ -108,6 +121,11 @@ export class WebGLApp extends LitElement {
 
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
+      this.gl.uniform2f(
+        this.programData.uniforms.translate,
+        this.deltaX,
+        this.deltaY
+      );
 
       const primitiveType = this.gl.TRIANGLES;
       const offset = 0;
@@ -117,17 +135,36 @@ export class WebGLApp extends LitElement {
     return html`
       <canvas></canvas>
       <div id="ui">
-        <label for="X">X</label>
-        <input
-          id="x"
-          type="range"
-          min="-1"
-          max="1"
-          step="0.01"
-          value=${this.deltaX}
-          @input=${this.handleX}
-        />
-        <div>${this.deltaX}</div>
+        <div>
+          <label for="x">X</label>
+          <input
+            id="x"
+            type="range"
+            min="-1"
+            max="1"
+            step="0.01"
+            value=${this.deltaX}
+            @input=${this.handleX}
+          />
+        </div>
+        <div>
+          <label for="y">Y</label>
+          <input
+            id="y"
+            type="range"
+            min="-1"
+            max="1"
+            step="0.01"
+            value=${this.deltaY}
+            @input=${this.handleY}
+          />
+        </div>
+        <div>
+          X: <span>${this.deltaX}</span>
+        </div>
+        <div>
+          Y: <span>${this.deltaY}</span>
+        </div>
       </div>
     `;
   }

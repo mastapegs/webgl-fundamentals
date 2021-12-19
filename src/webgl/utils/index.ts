@@ -3,7 +3,7 @@ export type Color = [number, number, number, number];
 export interface ProgramData {
   program: WebGLProgram;
   attributes: AttributeData[];
-  uniforms: UniformData[];
+  uniforms: UniformData;
 }
 
 export interface AttributeData {
@@ -13,7 +13,7 @@ export interface AttributeData {
 }
 
 export interface UniformData {
-  location: WebGLUniformLocation;
+  [key: string]: WebGLUniformLocation;
 }
 
 export function createShader(
