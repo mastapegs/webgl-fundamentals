@@ -38,8 +38,8 @@ export class WebGLApp extends LitElement {
   @state() programData!: ProgramData;
   @state() deltaX = 0;
   @state() deltaY = 0;
-  @state() thetaX = Math.PI / 2;
-  @state() thetaY = 0;
+  @state() theta = Math.PI / 2;
+  @state() scale = 1;
 
   initializeWebGL() {
     this.gl = this.canvas.getContext("webgl")!;
@@ -48,14 +48,22 @@ export class WebGLApp extends LitElement {
       this.gl,
       `
       attribute vec2 a_position;
+      uniform vec2 u_scale;
       uniform vec2 u_rotation;
       uniform vec2 u_translation;
       varying vec2 v_position;
 
       void main() {
+        vec2 scaledPosition = a_position * u_scale;
+        
+        // vec2 rotatedPosition = vec2(
+        //   a_position.x * u_rotation.y + a_position.y * u_rotation.x,
+        //   a_position.y * u_rotation.y - a_position.x * u_rotation.x
+        // );
+
         vec2 rotatedPosition = vec2(
-          a_position.x * u_rotation.y + a_position.y * u_rotation.x,
-          a_position.y * u_rotation.y - a_position.x * u_rotation.x
+          scaledPosition.x * u_rotation.y + scaledPosition.y * u_rotation.x,
+          scaledPosition.y * u_rotation.y - scaledPosition.x * u_rotation.x
         );
 
         gl_Position = vec4(rotatedPosition + u_translation, 0, 1);
@@ -80,15 +88,17 @@ export class WebGLApp extends LitElement {
       program,
       "a_position"
     );
-
-    const resolutionUniformLocation = this.gl.getUniformLocation(
+    const scaleUniformLocation = this.gl.getUniformLocation(
       program,
-      "u_translation"
+      "u_scale"
     )!;
-
     const rotationUniformLocation = this.gl.getUniformLocation(
       program,
       "u_rotation"
+    )!;
+    const translationUniformLocation = this.gl.getUniformLocation(
+      program,
+      "u_translation"
     )!;
 
     const trianglePointLength = 0.5;
@@ -108,8 +118,9 @@ export class WebGLApp extends LitElement {
         },
       ],
       uniforms: {
-        translation: resolutionUniformLocation,
+        scale: scaleUniformLocation,
         rotation: rotationUniformLocation,
+        translation: translationUniformLocation,
       },
     };
   }
@@ -125,11 +136,11 @@ export class WebGLApp extends LitElement {
   handleY(event: Event) {
     this.deltaY = Number((event.target as HTMLInputElement).value);
   }
-  handleThetaX(event: Event) {
-    this.thetaX = Number((event.target as HTMLInputElement).value);
+  handleTheta(event: Event) {
+    this.theta = Number((event.target as HTMLInputElement).value);
   }
-  handleThetaY(event: Event) {
-    this.thetaY = Number((event.target as HTMLInputElement).value);
+  handleScale(event: Event) {
+    this.scale = Number((event.target as HTMLInputElement).value);
   }
 
   drawScene() {
@@ -142,14 +153,19 @@ export class WebGLApp extends LitElement {
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
       this.gl.uniform2f(
-        this.programData.uniforms.translation,
-        this.deltaX,
-        this.deltaY
+        this.programData.uniforms.scale,
+        this.scale,
+        this.scale
       );
       this.gl.uniform2f(
         this.programData.uniforms.rotation,
-        Math.cos(this.thetaX),
-        Math.sin(this.thetaX)
+        Math.cos(this.theta),
+        Math.sin(this.theta)
+      );
+      this.gl.uniform2f(
+        this.programData.uniforms.translation,
+        this.deltaX,
+        this.deltaY
       );
 
       const primitiveType = this.gl.TRIANGLES;
@@ -194,32 +210,32 @@ export class WebGLApp extends LitElement {
         </div>
         <div>
           <input
-            id="thetaX"
+            id="theta"
             type="range"
             min=${Math.PI * -2}
             max=${Math.PI * 2}
             step="0.01"
-            value=${this.thetaX}
-            @input=${this.handleThetaX}
+            value=${this.theta}
+            @input=${this.handleTheta}
           />
-          <label for="thetaY">thetaX</label>
+          <label for="theta">Theta</label>
         </div>
         <div>
           <input
-            id="thetaY"
+            id="scale"
             type="range"
-            min=${Math.PI * -2}
-            max=${Math.PI * 2}
+            min="0"
+            max="2"
             step="0.01"
-            value=${this.thetaY}
-            @input=${this.handleThetaY}
+            value=${this.scale}
+            @input=${this.handleScale}
           />
-          <label for="thetaX">thetaY</label>
+          <label for="scale">Scale</label>
         </div>
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
-        <div>Theta X: <span>${this.roundTo100(this.thetaX)}</span></div>
-        <div>🚧 Theta Y: <span>${this.roundTo100(this.thetaY)}</span></div>
+        <div>Theta: <span>${this.roundTo100(this.theta)}</span></div>
+        <div>Scale: <span>${this.roundTo100(this.scale)}</span></div>
       </form>
     `;
   }
