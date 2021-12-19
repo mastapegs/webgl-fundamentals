@@ -78,7 +78,7 @@ export class WebGLApp extends LitElement {
       "u_translation"
     )!;
 
-    const trianglePointLength = 0.25;
+    const trianglePointLength = 0.5;
     const positionBuffer = prepareBuffer(this.gl, [
       ...[0, trianglePointLength],
       ...[trianglePointLength, -1 * trianglePointLength],
@@ -138,7 +138,7 @@ export class WebGLApp extends LitElement {
     this.drawScene();
     return html`
       <canvas></canvas>
-      <div id="ui">
+      <form id="ui">
         <div>
           <label for="x">X</label>
           <input
@@ -165,7 +165,7 @@ export class WebGLApp extends LitElement {
         </div>
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
-      </div>
+      </form>
     `;
   }
 }
