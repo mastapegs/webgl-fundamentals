@@ -1,22 +1,5 @@
 body {
   margin: 0;
-  height: 100vh;
-  font: 16px/1.5 sans-serif;
-}
-
-canvas {
   height: 100%;
-  width: 100%;
-  display: block;
-}
-
-#ui {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 3;
-  padding: 12px;
-  box-shadow: 5px 5px 5px 5px hsla(0, 0%, 0%, 0.5);
-  border-radius: 4px;
-  background-color: white;
+  font: 16px/1.5 sans-serif;
 }
