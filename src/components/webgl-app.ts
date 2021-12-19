@@ -38,7 +38,7 @@ export class WebGLApp extends LitElement {
   @state() programData!: ProgramData;
   @state() deltaX = 0;
   @state() deltaY = 0;
-  @state() thetaX = 0;
+  @state() thetaX = Math.PI / 2;
   @state() thetaY = 0;
 
   initializeWebGL() {
@@ -48,12 +48,17 @@ export class WebGLApp extends LitElement {
       this.gl,
       `
       attribute vec2 a_position;
+      uniform vec2 u_rotation;
       uniform vec2 u_translation;
-
       varying vec2 v_position;
 
       void main() {
-        gl_Position = vec4(a_position + u_translation, 0, 1);
+        vec2 rotatedPosition = vec2(
+          a_position.x * u_rotation.y + a_position.y * u_rotation.x,
+          a_position.y * u_rotation.y - a_position.x * u_rotation.x
+        );
+
+        gl_Position = vec4(rotatedPosition + u_translation, 0, 1);
         v_position = a_position;
       }
       `,
@@ -81,6 +86,11 @@ export class WebGLApp extends LitElement {
       "u_translation"
     )!;
 
+    const rotationUniformLocation = this.gl.getUniformLocation(
+      program,
+      "u_rotation"
+    )!;
+
     const trianglePointLength = 0.5;
     const positionBuffer = prepareBuffer(this.gl, [
       ...[0, trianglePointLength],
@@ -98,7 +108,8 @@ export class WebGLApp extends LitElement {
         },
       ],
       uniforms: {
-        translate: resolutionUniformLocation,
+        translation: resolutionUniformLocation,
+        rotation: rotationUniformLocation,
       },
     };
   }
@@ -131,9 +142,14 @@ export class WebGLApp extends LitElement {
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
       this.gl.uniform2f(
-        this.programData.uniforms.translate,
+        this.programData.uniforms.translation,
         this.deltaX,
         this.deltaY
+      );
+      this.gl.uniform2f(
+        this.programData.uniforms.rotation,
+        Math.cos(this.thetaX),
+        Math.sin(this.thetaX)
       );
 
       const primitiveType = this.gl.TRIANGLES;
@@ -186,7 +202,7 @@ export class WebGLApp extends LitElement {
             value=${this.thetaX}
             @input=${this.handleThetaX}
           />
-          <label for="thetaY">thetaY</label>
+          <label for="thetaY">thetaX</label>
         </div>
         <div>
           <input
