@@ -219,7 +219,7 @@ export class WebGLApp extends LitElement {
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
         <div>Theta X: <span>${this.roundTo100(this.thetaX)}</span></div>
-        <div>Theta Y: <span>${this.roundTo100(this.thetaY)}</span></div>
+        <div>🚧 Theta Y: <span>${this.roundTo100(this.thetaY)}</span></div>
       </form>
     `;
   }
