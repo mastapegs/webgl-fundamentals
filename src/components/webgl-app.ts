@@ -38,8 +38,8 @@ export class WebGLApp extends LitElement {
   @state() programData!: ProgramData;
   @state() deltaX = 0;
   @state() deltaY = 0;
-  @state() thetaX = Math.PI / 2;
-  @state() thetaY = 0;
+  @state() theta = Math.PI / 2;
+  @state() scale = 1;
 
   initializeWebGL() {
     this.gl = this.canvas.getContext("webgl")!;
@@ -125,11 +125,11 @@ export class WebGLApp extends LitElement {
   handleY(event: Event) {
     this.deltaY = Number((event.target as HTMLInputElement).value);
   }
-  handleThetaX(event: Event) {
-    this.thetaX = Number((event.target as HTMLInputElement).value);
+  handleTheta(event: Event) {
+    this.theta = Number((event.target as HTMLInputElement).value);
   }
-  handleThetaY(event: Event) {
-    this.thetaY = Number((event.target as HTMLInputElement).value);
+  handleScale(event: Event) {
+    this.scale = Number((event.target as HTMLInputElement).value);
   }
 
   drawScene() {
@@ -148,8 +148,8 @@ export class WebGLApp extends LitElement {
       );
       this.gl.uniform2f(
         this.programData.uniforms.rotation,
-        Math.cos(this.thetaX),
-        Math.sin(this.thetaX)
+        Math.cos(this.theta),
+        Math.sin(this.theta)
       );
 
       const primitiveType = this.gl.TRIANGLES;
@@ -194,32 +194,32 @@ export class WebGLApp extends LitElement {
         </div>
         <div>
           <input
-            id="thetaX"
+            id="theta"
             type="range"
             min=${Math.PI * -2}
             max=${Math.PI * 2}
             step="0.01"
-            value=${this.thetaX}
-            @input=${this.handleThetaX}
+            value=${this.theta}
+            @input=${this.handleTheta}
           />
-          <label for="thetaY">thetaX</label>
+          <label for="theta">Theta</label>
         </div>
         <div>
           <input
-            id="thetaY"
+            id="scale"
             type="range"
-            min=${Math.PI * -2}
-            max=${Math.PI * 2}
+            min="0"
+            max="2"
             step="0.01"
-            value=${this.thetaY}
-            @input=${this.handleThetaY}
+            value=${this.scale}
+            @input=${this.handleScale}
           />
-          <label for="thetaX">thetaY</label>
+          <label for="scale">Scale</label>
         </div>
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
-        <div>Theta X: <span>${this.roundTo100(this.thetaX)}</span></div>
-        <div>🚧 Theta Y: <span>${this.roundTo100(this.thetaY)}</span></div>
+        <div>Theta: <span>${this.roundTo100(this.theta)}</span></div>
+        <div>Scale: <span>${this.roundTo100(this.scale)}</span></div>
       </form>
     `;
   }
