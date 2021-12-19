@@ -21,11 +21,22 @@ export class WebGLApp extends LitElement {
       height: 100vh;
       display: block;
     }
+    #ui {
+      padding: 8px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      border: 1px solid hsla(0, 0%, 0%, 0.5);
+      border-radius: 8px;
+      box-shadow: 5px 5px 5px 5px hsla(0, 0%, 0%, 0.5);
+    }
   `;
 
   @query("canvas") canvas!: HTMLCanvasElement;
   @state() gl!: WebGLRenderingContext;
   @state() programData!: ProgramData;
+  @state() deltaX = 0;
+  @state() deltaY = 0;
 
   initializeWebGL() {
     this.gl = this.canvas.getContext("webgl")!;
@@ -53,10 +64,11 @@ export class WebGLApp extends LitElement {
       "a_position"
     );
 
+    const trianglePointLength = 0.25;
     const positionBuffer = prepareBuffer(this.gl, [
-      ...[0, 0.75],
-      ...[0.75, -0.75],
-      ...[-0.75, -0.75],
+      ...[0, trianglePointLength],
+      ...[trianglePointLength, -1 * trianglePointLength],
+      ...[-1 * trianglePointLength, -1 * trianglePointLength],
     ]);
 
     this.programData = {
@@ -77,6 +89,10 @@ export class WebGLApp extends LitElement {
     setTimeout(() => this.initializeWebGL());
   }
 
+  handleX(event: Event) {
+    this.deltaX = Number((event.target as HTMLInputElement).value);
+  }
+
   render() {
     if (this.programData) {
       resizeCanvasToDisplaySize(this.canvas);
@@ -94,7 +110,19 @@ export class WebGLApp extends LitElement {
     }
     return html`
       <canvas></canvas>
-      <div>UI Here</div>
+      <div id="ui">
+        <label for="X">X</label>
+        <input
+          id="x"
+          type="range"
+          min="-1"
+          max="1"
+          step="0.01"
+          value=${this.deltaX}
+          @input=${this.handleX}
+        />
+        <div>${this.deltaX}</div>
+      </div>
     `;
   }
 }
