@@ -1,6 +1,13 @@
 import { html, css, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
-import { createProgram, prepareBuffer, ProgramData } from "../webgl/utils";
+import {
+  createProgram,
+  prepareBuffer,
+  prepareProgramAttributes,
+  ProgramData,
+  resizeCanvasToDisplaySize,
+  clear,
+} from "../webgl/utils";
 
 @customElement("webgl-app")
 export class WebGLApp extends LitElement {
@@ -36,7 +43,7 @@ export class WebGLApp extends LitElement {
       precision mediump float;
 
       void main() {
-        gl_FragColor = vec4(1, 1, 1, 1);
+        gl_FragColor = vec4(0, 0, 0, 1);
       }
       `
     );
@@ -47,9 +54,9 @@ export class WebGLApp extends LitElement {
     );
 
     const positionBuffer = prepareBuffer(this.gl, [
-      ...[0, 1],
-      ...[1, -1],
-      ...[-1, -1],
+      ...[0, 0.75],
+      ...[0.75, -0.75],
+      ...[-0.75, -0.75],
     ]);
 
     this.programData = {
@@ -72,7 +79,18 @@ export class WebGLApp extends LitElement {
 
   render() {
     if (this.programData) {
-      console.log(this.programData);
+      resizeCanvasToDisplaySize(this.canvas);
+      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+      clear(this.gl, [1, 1, 1, 1]);
+
+      this.gl.useProgram(this.programData.program);
+      prepareProgramAttributes(this.gl, this.programData.attributes);
+
+      const primitiveType = this.gl.TRIANGLES;
+      const offset = 0;
+      const count = 3;
+      this.gl.drawArrays(primitiveType, offset, count);
     }
     return html`
       <canvas></canvas>
