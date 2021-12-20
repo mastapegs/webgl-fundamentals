@@ -135,7 +135,7 @@ export class WebGLApp extends LitElement {
       resizeCanvasToDisplaySize(this.canvas);
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-      clear(this.gl, [1, 1, 1, 1]);
+      clear(this.gl, [0.9, 0.9, 0.9, 1]);
 
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
