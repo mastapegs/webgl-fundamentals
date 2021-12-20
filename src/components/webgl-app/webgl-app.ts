@@ -8,7 +8,9 @@ import {
   ProgramData,
   resizeCanvasToDisplaySize,
   clear,
-} from "../webgl/utils";
+} from "../../webgl/utils";
+import vertexShaderSource from "./vertex.glsl?raw";
+import fragmentShaderSource from "./fragment.glsl?raw";
 
 @customElement("webgl-app")
 export class WebGLApp extends LitElement {
@@ -47,32 +49,8 @@ export class WebGLApp extends LitElement {
 
     const program = createProgram(
       this.gl,
-      `
-      attribute vec2 a_position;
-
-      uniform mat3 u_matrix;
-
-      varying vec2 v_position;
-
-      void main() {
-        vec2 position = (u_matrix * vec3(a_position, 1)).xy;
-        
-        gl_Position = vec4(position, 0, 1);
-        v_position = a_position;
-      }
-      `,
-      `
-      precision mediump float;
-      varying vec2 v_position;
-
-      void main() {
-        // convert from clipspace -1,1 -> colorspace 0,1
-        vec2 shrink_color = vec2(10, 10);
-        vec2 color_space = (shrink_color * v_position + vec2(1, 1)) / vec2(2, 2);
-
-        gl_FragColor = vec4(color_space, 0.7, 1);
-      }
-      `
+      vertexShaderSource,
+      fragmentShaderSource
     );
 
     const positionAttributeLocation = this.gl.getAttribLocation(
