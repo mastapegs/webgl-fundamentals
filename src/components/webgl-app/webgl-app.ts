@@ -62,12 +62,28 @@ export class WebGLApp extends LitElement {
       "u_matrix"
     )!;
 
-    const trianglePointLength = 0.5;
-    const positionBuffer = prepareBuffer(this.gl, [
-      ...[0, trianglePointLength],
-      ...[trianglePointLength, -1 * trianglePointLength],
-      ...[-1 * trianglePointLength, -1 * trianglePointLength],
-    ]);
+    const translatePoint = (
+      point: [number, number],
+      dX: number,
+      dY: number
+    ): [number, number] => [point[0] + dX, point[1] + dY];
+
+    const triangleSize = 100;
+    const dX = triangleSize * -0.5;
+    const dY = -0.5 * triangleSize * Math.sin(Math.PI / 3);
+    const equilateralTrianglePoints = [
+      ...translatePoint([0, 0], dX, dY),
+      ...translatePoint([triangleSize, 0], dX, dY),
+      ...translatePoint(
+        [
+          triangleSize * Math.cos(Math.PI / 3),
+          triangleSize * Math.cos(Math.PI / 6),
+        ],
+        dX,
+        dY
+      ),
+    ];
+    const positionBuffer = prepareBuffer(this.gl, equilateralTrianglePoints);
 
     this.programData = {
       program,
@@ -117,18 +133,28 @@ export class WebGLApp extends LitElement {
         this.scale
       );
 
+      const projectionMatrix = mat3.create();
+      mat3.projection(
+        projectionMatrix,
+        this.gl.canvas.clientWidth,
+        this.gl.canvas.clientHeight
+      );
       const scaleMatrix = mat3.create();
-      mat3.fromScaling(scaleMatrix, vec2.fromValues(this.scale, this.scale));
+      mat3.fromScaling(scaleMatrix, vec2.fromValues(this.scale, -this.scale));
       const rotationMatrix = mat3.create();
       mat3.fromRotation(rotationMatrix, this.theta);
       const translationMatrix = mat3.create();
       mat3.fromTranslation(
         translationMatrix,
-        vec2.fromValues(this.deltaX, this.deltaY)
+        vec2.fromValues(
+          this.deltaX + this.gl.canvas.clientWidth / 2,
+          this.deltaY + this.gl.canvas.clientHeight / 2
+        )
       );
 
       let matrix = mat3.create();
-      mat3.multiply(matrix, translationMatrix, rotationMatrix);
+      mat3.multiply(matrix, projectionMatrix, translationMatrix);
+      mat3.multiply(matrix, matrix, rotationMatrix);
       mat3.multiply(matrix, matrix, scaleMatrix);
 
       this.gl.uniformMatrix3fv(this.programData.uniforms.matrix, false, matrix);
@@ -153,9 +179,9 @@ export class WebGLApp extends LitElement {
           <input
             id="x"
             type="range"
-            min="-1"
-            max="1"
-            step="0.01"
+            min="-240"
+            max="240"
+            step="1"
             value=${this.deltaX}
             @input=${this.handleX}
           />
@@ -165,9 +191,9 @@ export class WebGLApp extends LitElement {
           <input
             id="y"
             type="range"
-            min="-1"
-            max="1"
-            step="0.01"
+            min="-320"
+            max="320"
+            step="1"
             value=${this.deltaY}
             @input=${this.handleY}
           />
