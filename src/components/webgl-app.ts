@@ -1,5 +1,6 @@
 import { html, css, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
+import { mat3, vec2 } from "gl-matrix";
 import {
   createProgram,
   prepareBuffer,
@@ -38,7 +39,7 @@ export class WebGLApp extends LitElement {
   @state() programData!: ProgramData;
   @state() deltaX = 0;
   @state() deltaY = 0;
-  @state() theta = Math.PI / 2;
+  @state() theta = 0;
   @state() scale = 1;
 
   initializeWebGL() {
@@ -48,25 +49,15 @@ export class WebGLApp extends LitElement {
       this.gl,
       `
       attribute vec2 a_position;
-      uniform vec2 u_scale;
-      uniform vec2 u_rotation;
-      uniform vec2 u_translation;
+
+      uniform mat3 u_matrix;
+
       varying vec2 v_position;
 
       void main() {
-        vec2 scaledPosition = a_position * u_scale;
+        vec2 position = (u_matrix * vec3(a_position, 1)).xy;
         
-        // vec2 rotatedPosition = vec2(
-        //   a_position.x * u_rotation.y + a_position.y * u_rotation.x,
-        //   a_position.y * u_rotation.y - a_position.x * u_rotation.x
-        // );
-
-        vec2 rotatedPosition = vec2(
-          scaledPosition.x * u_rotation.y + scaledPosition.y * u_rotation.x,
-          scaledPosition.y * u_rotation.y - scaledPosition.x * u_rotation.x
-        );
-
-        gl_Position = vec4(rotatedPosition + u_translation, 0, 1);
+        gl_Position = vec4(position, 0, 1);
         v_position = a_position;
       }
       `,
@@ -88,17 +79,9 @@ export class WebGLApp extends LitElement {
       program,
       "a_position"
     );
-    const scaleUniformLocation = this.gl.getUniformLocation(
+    const matrixUniformLocation = this.gl.getUniformLocation(
       program,
-      "u_scale"
-    )!;
-    const rotationUniformLocation = this.gl.getUniformLocation(
-      program,
-      "u_rotation"
-    )!;
-    const translationUniformLocation = this.gl.getUniformLocation(
-      program,
-      "u_translation"
+      "u_matrix"
     )!;
 
     const trianglePointLength = 0.5;
@@ -118,9 +101,7 @@ export class WebGLApp extends LitElement {
         },
       ],
       uniforms: {
-        scale: scaleUniformLocation,
-        rotation: rotationUniformLocation,
-        translation: translationUniformLocation,
+        matrix: matrixUniformLocation,
       },
     };
   }
@@ -157,16 +138,22 @@ export class WebGLApp extends LitElement {
         this.scale,
         this.scale
       );
-      this.gl.uniform2f(
-        this.programData.uniforms.rotation,
-        Math.cos(this.theta),
-        Math.sin(this.theta)
+
+      const scaleMatrix = mat3.create();
+      mat3.fromScaling(scaleMatrix, vec2.fromValues(this.scale, this.scale));
+      const rotationMatrix = mat3.create();
+      mat3.fromRotation(rotationMatrix, this.theta);
+      const translationMatrix = mat3.create();
+      mat3.fromTranslation(
+        translationMatrix,
+        vec2.fromValues(this.deltaX, this.deltaY)
       );
-      this.gl.uniform2f(
-        this.programData.uniforms.translation,
-        this.deltaX,
-        this.deltaY
-      );
+
+      let matrix = mat3.create();
+      mat3.multiply(matrix, translationMatrix, rotationMatrix);
+      mat3.multiply(matrix, matrix, scaleMatrix);
+
+      this.gl.uniformMatrix3fv(this.programData.uniforms.matrix, false, matrix);
 
       const primitiveType = this.gl.TRIANGLES;
       const offset = 0;
