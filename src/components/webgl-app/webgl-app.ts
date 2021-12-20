@@ -74,14 +74,14 @@ export class WebGLApp extends LitElement {
 
     const triangleSize = 150;
     const dX = triangleSize * -0.5;
-    const dY = -0.5 * triangleSize * Math.sin(Math.PI / 3);
+    const dY = -0.5 * triangleSize * Math.cos(Math.PI / 3);
     const equilateralTrianglePoints = [
       ...translatePoint([0, 0], dX, dY),
       ...translatePoint([triangleSize, 0], dX, dY),
       ...translatePoint(
         [
           triangleSize * Math.cos(Math.PI / 3),
-          triangleSize * Math.cos(Math.PI / 6),
+          triangleSize * Math.sin(Math.PI / 3),
         ],
         dX,
         dY
@@ -90,7 +90,7 @@ export class WebGLApp extends LitElement {
     const positionBuffer = prepareBuffer(this.gl, equilateralTrianglePoints);
 
     const colors = [...[1, 0, 0, 1], ...[0, 1, 0, 1], ...[0, 0, 1, 1]];
-    const colorBuffer = prepareBuffer(this.gl, colors)
+    const colorBuffer = prepareBuffer(this.gl, colors);
 
     this.programData = {
       program,
