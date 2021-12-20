@@ -139,11 +139,6 @@ export class WebGLApp extends LitElement {
 
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
-      this.gl.uniform2f(
-        this.programData.uniforms.scale,
-        this.scale,
-        this.scale
-      );
 
       const projectionMatrix = mat3.create();
       mat3.projection(
