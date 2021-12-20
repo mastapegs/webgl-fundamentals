@@ -71,14 +71,6 @@ export function startApp(canvas: HTMLCanvasElement) {
       resolution: resolutionUniformLocation,
       translation: translationUniformLocation,
     },
-    // [
-    //   {
-    //     location: resolutionUniformLocation,
-    //   },
-    //   {
-    //     location: translationUniformLocation,
-    //   },
-    // ],
   };
 
   // Above this point is initialization
