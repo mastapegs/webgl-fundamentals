@@ -67,14 +67,18 @@ export function startApp(canvas: HTMLCanvasElement) {
         size: 4,
       },
     ],
-    uniforms: [
-      {
-        location: resolutionUniformLocation,
-      },
-      {
-        location: translationUniformLocation,
-      },
-    ],
+    uniforms: {
+      resolution: resolutionUniformLocation,
+      translation: translationUniformLocation,
+    },
+    // [
+    //   {
+    //     location: resolutionUniformLocation,
+    //   },
+    //   {
+    //     location: translationUniformLocation,
+    //   },
+    // ],
   };
 
   // Above this point is initialization
@@ -112,13 +116,13 @@ function drawRectangle(
 
   // Resolution Uniform
   gl.uniform2f(
-    programData.uniforms[0].location,
+    programData.uniforms.resolution,
     gl.canvas.width,
     gl.canvas.height
   );
 
   // Translation Uniform
-  gl.uniform2f(programData.uniforms[1].location, deltaX, deltaY);
+  gl.uniform2f(programData.uniforms.translation, deltaX, deltaY);
 
   // Draw
   {
