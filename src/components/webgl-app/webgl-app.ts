@@ -57,6 +57,10 @@ export class WebGLApp extends LitElement {
       program,
       "a_position"
     );
+    const colorAttributeLocation = this.gl.getAttribLocation(
+      program,
+      "a_color"
+    );
     const matrixUniformLocation = this.gl.getUniformLocation(
       program,
       "u_matrix"
@@ -68,7 +72,7 @@ export class WebGLApp extends LitElement {
       dY: number
     ): [number, number] => [point[0] + dX, point[1] + dY];
 
-    const triangleSize = 100;
+    const triangleSize = 150;
     const dX = triangleSize * -0.5;
     const dY = -0.5 * triangleSize * Math.sin(Math.PI / 3);
     const equilateralTrianglePoints = [
@@ -85,6 +89,9 @@ export class WebGLApp extends LitElement {
     ];
     const positionBuffer = prepareBuffer(this.gl, equilateralTrianglePoints);
 
+    const colors = [...[1, 0, 0, 1], ...[0, 1, 0, 1], ...[0, 0, 1, 1]];
+    const colorBuffer = prepareBuffer(this.gl, colors)
+
     this.programData = {
       program,
       attributes: [
@@ -92,6 +99,11 @@ export class WebGLApp extends LitElement {
           location: positionAttributeLocation,
           buffer: positionBuffer,
           size: 2,
+        },
+        {
+          location: colorAttributeLocation,
+          buffer: colorBuffer,
+          size: 4,
         },
       ],
       uniforms: {
