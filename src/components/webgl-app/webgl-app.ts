@@ -11,6 +11,7 @@ import {
 } from "../../webgl/utils";
 import vertexShaderSource from "./vertex.glsl?raw";
 import fragmentShaderSource from "./fragment.glsl?raw";
+import { roundTo100 } from "../../utils";
 
 @customElement("webgl-app")
 export class WebGLApp extends LitElement {
@@ -135,15 +136,10 @@ export class WebGLApp extends LitElement {
       resizeCanvasToDisplaySize(this.canvas);
       this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-      clear(this.gl, [1, 1, 1, 1]);
+      clear(this.gl, [0.9, 0.9, 0.9, 1]);
 
       this.gl.useProgram(this.programData.program);
       prepareProgramAttributes(this.gl, this.programData.attributes);
-      this.gl.uniform2f(
-        this.programData.uniforms.scale,
-        this.scale,
-        this.scale
-      );
 
       const projectionMatrix = mat3.create();
       mat3.projection(
@@ -176,10 +172,6 @@ export class WebGLApp extends LitElement {
       const count = 3;
       this.gl.drawArrays(primitiveType, offset, count);
     }
-  }
-
-  roundTo100(number: number) {
-    return Math.round(number * 100) / 100;
   }
 
   render() {
@@ -237,8 +229,8 @@ export class WebGLApp extends LitElement {
         </div>
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
-        <div>Theta: <span>${this.roundTo100(this.theta)}</span></div>
-        <div>Scale: <span>${this.roundTo100(this.scale)}</span></div>
+        <div>Theta: <span>${roundTo100(this.theta)}</span></div>
+        <div>Scale: <span>${roundTo100(this.scale)}</span></div>
       </form>
     `;
   }
