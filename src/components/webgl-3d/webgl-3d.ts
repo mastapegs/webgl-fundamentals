@@ -152,8 +152,14 @@ export class WebGL3D extends LitElement {
         this.scale * baseScale
       )
     );
+    const cubeMoveMatrix = mat4.create();
+    mat4.fromTranslation(cubeMoveMatrix, vec3.fromValues(-0.5, -0.5, -0.5));
     const rotationMatrix = mat4.create();
-    mat4.fromRotation(rotationMatrix, this.theta, vec3.fromValues(1, 1/2, 1/3));
+    mat4.fromRotation(
+      rotationMatrix,
+      this.theta,
+      vec3.fromValues(1, 1 / 2, 1 / 3)
+    );
     const translationMatrix = mat4.create();
     mat4.fromTranslation(
       translationMatrix,
@@ -168,6 +174,7 @@ export class WebGL3D extends LitElement {
     mat4.multiply(matrix, projectionMatrix, translationMatrix);
     mat4.multiply(matrix, matrix, rotationMatrix);
     mat4.multiply(matrix, matrix, scaleMatrix);
+    mat4.multiply(matrix, matrix, cubeMoveMatrix);
 
     this.gl.uniformMatrix4fv(this.programData.uniforms.matrix, false, matrix);
 
