@@ -10,6 +10,9 @@ import { html, css, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import vertexShaderSource from "./vertex.glsl?raw";
 import fragmentShaderSource from "./fragment.glsl?raw";
+import { cubePoints, colorPoints } from "./vertexData";
+import { mat4, vec3 } from "gl-matrix";
+import { roundTo100 } from "../../utils";
 
 @customElement("webgl-3d")
 export class WebGL3D extends LitElement {
@@ -42,6 +45,11 @@ export class WebGL3D extends LitElement {
   @query("canvas") canvas!: HTMLCanvasElement;
   @state() gl!: WebGLRenderingContext;
   @state() programData!: ProgramData;
+  @state() deltaX = 0;
+  @state() deltaY = 0;
+  @state() deltaZ = 0;
+  @state() scale = 1;
+  @state() theta = 0;
 
   initializeWebGL() {
     this.gl = this.canvas.getContext("webgl")!;
@@ -64,112 +72,6 @@ export class WebGL3D extends LitElement {
       program,
       "u_matrix"
     )!;
-
-    const cubePoints = [
-      // F
-      ...[0, 0, 1],
-      ...[1, 0, 1],
-      ...[1, 1, 1],
-
-      ...[1, 0, 1],
-      ...[1, 1, 1],
-      ...[0, 1, 1],
-
-      // B
-      ...[1, 0, 0],
-      ...[0, 0, 0],
-      ...[1, 1, 0],
-
-      ...[1, 1, 0],
-      ...[1, 0, 0],
-      ...[0, 1, 0],
-
-      // L
-      ...[0, 0, 0],
-      ...[0, 0, 1],
-      ...[0, 1, 1],
-
-      ...[0, 0, 0],
-      ...[0, 1, 1],
-      ...[0, 1, 0],
-
-      // R
-      ...[1, 0, 1],
-      ...[1, 0, 0],
-      ...[1, 1, 1],
-
-      ...[1, 1, 1],
-      ...[1, 0, 0],
-      ...[1, 1, 0],
-
-      // U
-      ...[0, 1, 0],
-      ...[1, 1, 1],
-      ...[1, 1, 0],
-
-      ...[0, 1, 0],
-      ...[0, 1, 1],
-      ...[1, 1, 1],
-
-      // D
-      ...[0, 0, 0],
-      ...[1, 0, 0],
-      ...[1, 0, 1],
-
-      ...[1, 0, 1],
-      ...[0, 0, 1],
-      ...[0, 0, 0],
-    ];
-
-    const colorPoints = [
-      // F
-      ...[1, 0, 0, 1], // Red
-      ...[1, 0, 0, 1], // Red
-      ...[1, 0, 0, 1], // Red
-      ...[1, 0, 0, 1], // Red
-      ...[1, 0, 0, 1], // Red
-      ...[1, 0, 0, 1], // Red
-
-      // B
-      ...[1, 1, 0, 1], // Yellow
-      ...[1, 1, 0, 1], // Yellow
-      ...[1, 1, 0, 1], // Yellow
-      ...[1, 1, 0, 1], // Yellow
-      ...[1, 1, 0, 1], // Yellow
-      ...[1, 1, 0, 1], // Yellow
-
-      // L
-      ...[0, 1, 0, 1], // Green
-      ...[0, 1, 0, 1], // Green
-      ...[0, 1, 0, 1], // Green
-      ...[0, 1, 0, 1], // Green
-      ...[0, 1, 0, 1], // Green
-      ...[0, 1, 0, 1], // Green
-
-      // R
-      ...[0, 1, 1, 1], // Cyan
-      ...[0, 1, 1, 1], // Cyan
-      ...[0, 1, 1, 1], // Cyan
-      ...[0, 1, 1, 1], // Cyan
-      ...[0, 1, 1, 1], // Cyan
-      ...[0, 1, 1, 1], // Cyan
-
-      // U
-      ...[0, 0, 1, 1], // Blue
-      ...[0, 0, 1, 1], // Blue
-      ...[0, 0, 1, 1], // Blue
-      ...[0, 0, 1, 1], // Blue
-      ...[0, 0, 1, 1], // Blue
-      ...[0, 0, 1, 1], // Blue
-
-      // D
-      ...[1, 0, 1, 1], // Magenta
-      ...[1, 0, 1, 1], // Magenta
-      ...[1, 0, 1, 1], // Magenta
-      ...[1, 0, 1, 1], // Magenta
-      ...[1, 0, 1, 1], // Magenta
-      ...[1, 0, 1, 1], // Magenta
-    ];
 
     const positionBuffer = prepareBuffer(this.gl, cubePoints);
     const colorBuffer = prepareBuffer(this.gl, colorPoints);
@@ -199,6 +101,22 @@ export class WebGL3D extends LitElement {
     setTimeout(() => this.initializeWebGL());
   }
 
+  handleX(event: Event) {
+    this.deltaX = Number((event.target as HTMLInputElement).value);
+  }
+  handleY(event: Event) {
+    this.deltaY = Number((event.target as HTMLInputElement).value);
+  }
+  handleZ(event: Event) {
+    this.deltaZ = Number((event.target as HTMLInputElement).value);
+  }
+  handleScale(event: Event) {
+    this.scale = Number((event.target as HTMLInputElement).value);
+  }
+  handleTheta(event: Event) {
+    this.theta = Number((event.target as HTMLInputElement).value);
+  }
+
   drawScene() {
     if (!this.programData) return;
 
@@ -210,10 +128,53 @@ export class WebGL3D extends LitElement {
     this.gl.useProgram(this.programData.program);
 
     this.gl.enable(this.gl.CULL_FACE);
+    this.gl.enable(this.gl.DEPTH_TEST);
 
     prepareProgramAttributes(this.gl, this.programData.attributes);
 
-    
+    const projectionMatrix = mat4.create();
+    mat4.ortho(
+      projectionMatrix,
+      0,
+      this.gl.canvas.clientWidth,
+      this.gl.canvas.clientHeight,
+      0,
+      -600,
+      600
+    );
+    const baseScale = 100;
+    const scaleMatrix = mat4.create();
+    mat4.fromScaling(
+      scaleMatrix,
+      vec3.fromValues(
+        this.scale * baseScale,
+        this.scale * baseScale,
+        this.scale * baseScale
+      )
+    );
+    const rotationMatrix = mat4.create();
+    mat4.fromRotation(rotationMatrix, this.theta, vec3.fromValues(1, 0.5, 0));
+    const translationMatrix = mat4.create();
+    mat4.fromTranslation(
+      translationMatrix,
+      vec3.fromValues(
+        this.deltaX + this.gl.canvas.clientWidth / 2,
+        this.deltaY + this.gl.canvas.clientHeight / 2,
+        this.deltaZ
+      )
+    );
+
+    let matrix = mat4.create();
+    mat4.multiply(matrix, projectionMatrix, translationMatrix);
+    mat4.multiply(matrix, matrix, rotationMatrix);
+    mat4.multiply(matrix, matrix, scaleMatrix);
+
+    this.gl.uniformMatrix4fv(this.programData.uniforms.matrix, false, matrix);
+
+    const primitiveType = this.gl.TRIANGLES;
+    const offset = 0;
+    const count = 36;
+    this.gl.drawArrays(primitiveType, offset, count);
   }
 
   render() {
@@ -221,7 +182,73 @@ export class WebGL3D extends LitElement {
     return html`
       <div id="container">
         <canvas></canvas>
-        <div id="ui">UI</div>
+        <form id="ui">
+          <div>
+            <input
+              id="x"
+              type="range"
+              min="-240"
+              max="240"
+              step="1"
+              value=${this.deltaX}
+              @input=${this.handleX}
+            />
+            <label for="x">X</label>
+          </div>
+          <div>
+            <input
+              id="y"
+              type="range"
+              min="-320"
+              max="320"
+              step="1"
+              value=${this.deltaY}
+              @input=${this.handleY}
+            />
+            <label for="y">Y</label>
+          </div>
+          <div>
+            <input
+              id="z"
+              type="range"
+              min="-400"
+              max="400"
+              step="1"
+              value=${this.deltaZ}
+              @input=${this.handleZ}
+            />
+            <label for="z">Z</label>
+          </div>
+          <div>
+            <input
+              id="scale"
+              type="range"
+              min="0"
+              max="2"
+              step="0.01"
+              value=${this.scale}
+              @input=${this.handleScale}
+            />
+            <label for="scale">Scale</label>
+          </div>
+          <div>
+            <input
+              id="theta"
+              type="range"
+              min=${Math.PI * -2}
+              max=${Math.PI * 2}
+              step="0.01"
+              value=${this.theta}
+              @input=${this.handleTheta}
+            />
+            <label for="theta">Theta</label>
+          </div>
+          <div>X: <span>${this.deltaX}</span></div>
+          <div>Y: <span>${this.deltaY}</span></div>
+          <div>Z: <span>${this.deltaZ}</span></div>
+          <div>Scale: <span>${this.scale}</span></div>
+          <div>Theta: <span>${roundTo100(this.theta)}</span></div>
+        </form>
       </div>
     `;
   }

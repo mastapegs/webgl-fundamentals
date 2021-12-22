@@ -11,6 +11,7 @@ import {
 } from "../../webgl/utils";
 import vertexShaderSource from "./vertex.glsl?raw";
 import fragmentShaderSource from "./fragment.glsl?raw";
+import { roundTo100 } from "../../utils";
 
 @customElement("webgl-app")
 export class WebGLApp extends LitElement {
@@ -173,10 +174,6 @@ export class WebGLApp extends LitElement {
     }
   }
 
-  roundTo100(number: number) {
-    return Math.round(number * 100) / 100;
-  }
-
   render() {
     this.drawScene();
     return html`
@@ -232,8 +229,8 @@ export class WebGLApp extends LitElement {
         </div>
         <div>X: <span>${this.deltaX}</span></div>
         <div>Y: <span>${this.deltaY}</span></div>
-        <div>Theta: <span>${this.roundTo100(this.theta)}</span></div>
-        <div>Scale: <span>${this.roundTo100(this.scale)}</span></div>
+        <div>Theta: <span>${roundTo100(this.theta)}</span></div>
+        <div>Scale: <span>${roundTo100(this.scale)}</span></div>
       </form>
     `;
   }

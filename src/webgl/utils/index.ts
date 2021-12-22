@@ -47,7 +47,7 @@ export function createProgram(
 
 export function clear(gl: WebGLRenderingContext, color: Color) {
   gl.clearColor(...color);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
 export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
