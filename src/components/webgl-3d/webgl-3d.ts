@@ -157,7 +157,7 @@ export class WebGL3D extends LitElement {
     const rotationMatrix = mat4.create();
     mat4.fromRotation(
       rotationMatrix,
-      this.theta,
+      this.theta + Math.PI / 4,
       vec3.fromValues(1, 1 / 2, 1 / 3)
     );
     const translationMatrix = mat4.create();
