@@ -90,3 +90,40 @@ export function prepareProgramAttributes(
     gl.vertexAttribPointer(location, size, type, normalize, stride, offset);
   });
 }
+
+export interface Attribute {
+  name: string;
+  buffer: WebGLBuffer;
+  numComponents: number;
+}
+
+export function createAttributeSetters(
+  gl: WebGLRenderingContext,
+  program: WebGLProgram
+) {
+  const attributeSetter = (attributes: Attribute[]): void => {
+    attributes.forEach(({ name, buffer, numComponents }) => {
+      const location = gl.getAttribLocation(program, name);
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.enableVertexAttribArray(location);
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.vertexAttribPointer(
+        location,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset
+      );
+    });
+  };
+  return attributeSetter;
+}
+
+export function createUniformSetters(
+  gl: WebGLRenderingContext,
+  program: WebGLProgram
+) {}
