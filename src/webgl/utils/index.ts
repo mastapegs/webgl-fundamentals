@@ -123,7 +123,21 @@ export function createAttributeSetters(
   return attributeSetter;
 }
 
+export interface Uniform {
+  name: string;
+  typeFn: any;
+  data: unknown;
+}
+
 export function createUniformSetters(
   gl: WebGLRenderingContext,
   program: WebGLProgram
-) {}
+) {
+  const uniformSetter = (uniforms: Uniform[]) => {
+    uniforms.forEach(({ name, typeFn, data }) => {
+      const location = gl.getUniformLocation(program, name);
+      typeFn(location, data);
+    });
+  };
+  return uniformSetter;
+}
