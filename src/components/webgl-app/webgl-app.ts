@@ -48,25 +48,6 @@ export class WebGLApp extends LitElement {
   initializeWebGL() {
     this.gl = this.canvas.getContext("webgl")!;
 
-    const program = createProgram(
-      this.gl,
-      vertexShaderSource,
-      fragmentShaderSource
-    );
-
-    const positionAttributeLocation = this.gl.getAttribLocation(
-      program,
-      "a_position"
-    );
-    const colorAttributeLocation = this.gl.getAttribLocation(
-      program,
-      "a_color"
-    );
-    const matrixUniformLocation = this.gl.getUniformLocation(
-      program,
-      "u_matrix"
-    )!;
-
     const translatePoint = (
       point: [number, number],
       dX: number,
@@ -92,6 +73,25 @@ export class WebGLApp extends LitElement {
 
     const colors = [...[1, 0, 0, 1], ...[0, 1, 0, 1], ...[0, 0, 1, 1]];
     const colorBuffer = prepareBuffer(this.gl, colors);
+    
+    const program = createProgram(
+      this.gl,
+      vertexShaderSource,
+      fragmentShaderSource
+    );
+    
+    const positionAttributeLocation = this.gl.getAttribLocation(
+      program,
+      "a_position"
+    );
+    const colorAttributeLocation = this.gl.getAttribLocation(
+      program,
+      "a_color"
+    );
+    const matrixUniformLocation = this.gl.getUniformLocation(
+      program,
+      "u_matrix"
+    )!;
 
     this.programData = {
       program,
